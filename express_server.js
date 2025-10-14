@@ -37,6 +37,7 @@ app.listen(port, () => {
 
 // il affiche :userId avec l'url /get-user/:userId, et affiche pareil dans le terminal { userId: ':userId' }
 
-// il affiche :userId avec l'url /get-user/2, et affiche dans le terminal { userId: '2' } et dans le web il affiche 2 (pareil pour 3 ou autre)
+// il affiche :userId avec l'url /get-user/2, et affiche dans le terminal { userId: '2' } et dans le web il affiche 2 (pareil pour 3 ou autre valeur)
+
 
 
