@@ -10,11 +10,14 @@ app.get('/some-html', (req, res) => {
   res.send('<html><body><h1>bonjour html</h1></body></html>')
 })
 
+app.get('/some-json',function (req, res){
+  res.json({age: '22', nom : 'Jane'})
+})
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
 
-// Cela marche, en ajoutant le chemin /some-html dans l'url, il affiche bien le message 'bonjour html' 
+// Cela marche, en ajoutant le chemin /some-json dans l'url, il affiche bien le contenu des valeurs données
 
-// et lrsque on essaie d"accéder avec /miou, on a bien le message 'Cannot GET /miou', et dans la console, on a bien le message d'erreur 404 (et dans postman j'ai bien 404 Not Found) 
