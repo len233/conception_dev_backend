@@ -14,10 +14,14 @@ app.get('/some-json',function (req, res){
   res.json({age: '22', nom : 'Jane'})
 })
 
+app.get('/transaction',function (req, res){
+  res.json({ tableau: [100, 2000, 3000] })
+})
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
 
-// Cela marche, en ajoutant le chemin /some-json dans l'url, il affiche bien le contenu des valeurs données
+// Cela marche, en ajoutant le chemin /transaction dans l'url, il affiche bien le tableau avec les 3 valeurs
 
