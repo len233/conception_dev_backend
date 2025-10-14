@@ -21,9 +21,12 @@ app.get('/transaction',function (req, res){
 })
 
 app.get('/exo-query-string', (req, res) => {
+  console.log(req.query)
   res.send('hello')
 })
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+// le console affiche "[Object: null prototype] {}" car il n'y a pas de query string dans l'url
