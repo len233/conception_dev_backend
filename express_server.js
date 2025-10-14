@@ -7,8 +7,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/some-html', (req, res) => {
-    const code = `<html><body><h1>bonjour html</h1></body></html>`;
-    res.send(code)
+  res.send('<html><body><h1>bonjour html</h1></body></html>')
 })
 
 app.listen(port, () => {
