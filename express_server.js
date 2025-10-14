@@ -43,3 +43,42 @@ app.post('/data', (req, res) => {
     console.log(req.body);
     res.json(req.body);
 });
+
+
+let tasks = [];
+
+app.get('/tasks', (req, res) => {
+    res.json(tasks);
+});
+
+app.post('/new-task', (req, res) => {
+    const newTask = req.body;
+    newTask.id = tasks.length ? tasks[tasks.length - 1].id + 1 : 1; 
+    tasks.push(newTask);
+    res.status(201).json(newTask);
+});
+
+app.put('/update-task/:id', (req, res) => {
+    const taskId = parseInt(req.params.id);
+    const updatedTask = req.body;
+    const taskIndex = tasks.findIndex(task => task.id === taskId);
+    
+    if (taskIndex !== -1) {
+        tasks[taskIndex] = { id: taskId, ...updatedTask };
+        res.json(tasks[taskIndex]);
+    } else {
+        res.status(404).json({ message: "Task not found" });
+    }
+});
+
+app.delete('/delete-task/:id', (req, res) => {
+    const taskId = parseInt(req.params.id);
+    const taskIndex = tasks.findIndex(task => task.id === taskId);
+    
+    if (taskIndex !== -1) {
+        const deletedTask = tasks.splice(taskIndex, 1);
+        res.json(deletedTask[0]);
+    } else {
+        res.status(404).json({ message: "Task not found" });
+    }
+});         
