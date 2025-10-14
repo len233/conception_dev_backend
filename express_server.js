@@ -3,6 +3,8 @@ const app = express()
 const port = 3000
 
 app.get('/', (req, res) => {
+  console.log(req.headers) 
+  console.log(req.body)
   res.send('Hello World!')
 })
 
@@ -22,6 +24,6 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
+// j'ai fait une modif dans le get de la route / en ajoutant un console log pour afficher les headers et le body de la requete
 
-// Cela marche, en ajoutant le chemin /transaction dans l'url, il affiche bien le tableau avec les 3 valeurs (dans postman aussi)
-
+// le headers il affiche plein d'informations sur la requete et le body il est vide car dans une requete get on envoie pas de body donc il affiche undefined
