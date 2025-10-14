@@ -3,14 +3,17 @@ const app = express()
 const port = 3000
 
 app.get('/', (req, res) => {
-//   res.send('Hello World!')
+  res.send('Hello World!')
 })
 
-
+app.get('/some-html', (req, res) => {
+    const code = `<html><body><h1>bonjour html</h1></body></html>`;
+    res.send(code)
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
 
-// Cela ne marche plus, car il n'arrive pas recevoir les requetes (récupérer les infos de la requete) et donc ne peut pas répondre (client ne reçoit rien, en attente d'une réponse)
+// Cela marche, en ajoutant le chemin /some-html dans l'url, il affiche bien le message 'bonjour html' 
