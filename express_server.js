@@ -23,5 +23,5 @@ app.listen(port, () => {
 })
 
 
-// Cela marche, en ajoutant le chemin /transaction dans l'url, il affiche bien le tableau avec les 3 valeurs
+// Cela marche, en ajoutant le chemin /transaction dans l'url, il affiche bien le tableau avec les 3 valeurs (dans postman aussi)
 
