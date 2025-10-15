@@ -82,3 +82,19 @@ app.delete('/delete-task/:id', (req, res) => {
         res.status(404).json({ message: "Task not found" });
     }
 });         
+
+// --------------------------------//
+
+const { getConnection } = require('./db_utils');
+const { getUsers } = require('./db_utils');
+
+app.get('/users-from-db', (req, res) => {
+    const client = getConnection('postgres', 'cactus4705', 'mabase');
+    getUsers(client, (err, users) => {
+        if (err) {
+            res.status(500).json({ error: 'Database error' });
+        } else {
+            res.json(users);
+        }
+    });
+}); 
