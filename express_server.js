@@ -4,8 +4,10 @@ const port = 3000
 
 const loggerMiddleware = (req, res, next) => {
     console.log("nouvelle requête entrante");
+    next();
 }
 app.use(loggerMiddleware);
+
 
 
 app.get('/', (req, res) => {
