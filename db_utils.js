@@ -14,3 +14,15 @@ client.connect()
   .then(res => console.table(res.rows))
   .catch(err => console.error('Erreur :', err))
   .finally(() => client.end());
+
+
+app.get('/users-from-db', (req, res) => {
+    const client = getConnection('postgres', 'cactus4705', 'mabase');
+    getUsers(client, (err, users) => {
+        if (err) {
+            res.status(500).json({ error: 'Database error' });
+        } else {
+            res.json(users);
+        }
+    });
+}); 
