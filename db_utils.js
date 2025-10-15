@@ -40,12 +40,12 @@ function insert_user(user, callback) {
   client.connect()
     .then(() => client.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [user.email]))
     .then(res => {
-      console.log('✅ Utilisateur ajouté :', res.rows[0]);
+      console.log('Utilisateur ajouté :', res.rows[0]);
       if (callback) callback(null, res.rows[0]);
       return res.rows[0];
     })
     .catch(err => {
-      console.error('❌ Erreur insertion :', err.message);
+      console.error('Erreur insertion :', err.message);
       if (callback) callback(err, null);
       throw err;
     })
@@ -53,7 +53,7 @@ function insert_user(user, callback) {
 }
 
 function runTests() {
-  console.log('🧪 Tests automatiques...\n');
+  console.log('Tests');
   
   getUsers((err, users) => {
     if (!err) console.table(users);
@@ -62,10 +62,10 @@ function runTests() {
   const testUser = { email: `test-${Date.now()}@exemple.com` };
   insert_user(testUser, (err, result) => {
     if (!err) {
-      console.log('✅ Test insertion réussi');
+      console.log('Test insertion réussi');
       setTimeout(() => getUsers((err, users) => {
         if (!err) {
-          console.log('📋 Liste finale :');
+          console.log('Liste finale :');
           console.table(users);
         }
       }), 500);
@@ -78,4 +78,3 @@ if (require.main === module) {
 }
 
 module.exports = { getConnection, getUsers, insert_user };
-

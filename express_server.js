@@ -2,6 +2,12 @@ const express = require('express')
 const app = express()
 const port = 3000
 
+const loggerMiddleware = (req, res, next) => {
+    console.log("nouvelle requête entrante");
+}
+app.use(loggerMiddleware);
+
+
 app.get('/', (req, res) => {
   console.log(req.headers) 
   console.log(req.body)
