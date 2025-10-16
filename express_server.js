@@ -4,11 +4,12 @@ const port = 3000
 
 const loggerMiddleware = (req, res, next) => {
     console.log("nouvelle requête entrante");
+    console.log("request.body dans loggerMiddleware:", req.body);
     next();
 }
+
 app.use(loggerMiddleware);
-
-
+app.use(express.json());
 
 app.get('/', (req, res) => {
   console.log(req.headers) 
@@ -44,8 +45,6 @@ app.listen(port, () => {
 })
 
 // --------------------------------//
-
-app.use(express.json());
 
 app.post('/data', (req, res) => {
     console.log(req.body);
