@@ -13,6 +13,7 @@ app.use(express.json());
 
 // Middleware pour servir des fichiers statiques
 app.use(express.static('templates'));
+app.use(express.static('public'));
 
 app.get('/', (req, res) => {
   console.log(req.headers) 
