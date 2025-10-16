@@ -2,18 +2,6 @@ const express = require('express')
 const app = express()
 const port = 3000
 
-const loggerMiddleware = (req, res, next) => {
-    console.log("nouvelle requête entrante");
-    console.log("request.body dans loggerMiddleware:", req.body);
-    next();
-}
-
-app.use(loggerMiddleware);
-app.use(express.json());
-
-// Middleware pour servir des fichiers statiques
-app.use(express.static('templates'));
-app.use(express.static('public'));
 
 app.get('/', (req, res) => {
   console.log(req.headers) 
@@ -42,7 +30,21 @@ app.get('/exo-query-string', (req, res) => {
 app.get('/get-user/:userId', (req, res) => {
   console.log(req.params)
   res.send(`<h1>${req.params.userId}</h1>`)
-})  
+})
+
+// Route publique (non restreinte)
+app.get('/hello', (req, res) => {
+  res.send('<h1>hello</h1>')
+})
+
+// Routes restreintes (nécessitent un token)
+app.get('/restricted1', (req, res) => {
+  res.json({ message: 'topsecret' });
+})
+
+app.get('/restricted2', (req, res) => {
+  res.send('<h1>Admin space</h1>');
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
@@ -93,3 +95,80 @@ app.delete('/delete-task/:id', (req, res) => {
         res.status(404).json({ message: "Task not found" });
     }
 });         
+
+
+// --------------------------------//
+
+const loggerMiddleware = (req, res, next) => {
+    console.log("nouvelle requête entrante");
+    console.log("request.body dans loggerMiddleware:", req.body);
+    next();
+}
+
+
+const headerMiddleware = (req, res, next) => {
+    console.log("Headers de la requête:", req.headers);
+    next();
+}
+
+
+const firewall = (req, res, next) => {
+    const urls = ['/', '/hello', '/some-html', '/some-json', '/transaction'];
+    
+    // Récupérer l'URL demandée
+    const requestedUrl = req.url.split('?')[0];// Enlever les query parameters 
+    
+    console.log("URL demandée:", requestedUrl);
+    console.log("URLs non restreintes:", urls);
+    
+    // Vérifier si l'URL est dans la liste des URLs non restreintes
+    if (urls.includes(requestedUrl)) {
+        console.log("URL non restreinte, accès autorisé");
+        next(); // Transmettre la requête au endpoint
+    } else {
+        console.log("URL restreinte, vérification du token");
+
+        const token = req.headers.authorization;
+        
+        if (token !== '42') {
+            console.log("Token invalide ou manquant");
+            return res.status(403).json({ message: 'Accès refusé - Token requis' });
+        }
+        
+        console.log("Token valide, accès autorisé");
+        next(); 
+    }
+}
+
+app.use(loggerMiddleware);
+app.use(headerMiddleware);
+app.use(firewall);
+app.use(express.json());
+
+app.use(express.static('templates'));
+app.use(express.static('public'));
+
+app.get('/hello', (req, res) => {
+  res.send('<h1>hello</h1>')
+})
+
+// avec vérification du token
+app.get('/restricted1', (req, res) => {
+  const token = req.headers.token;
+  
+  if (token !== '42') {
+    return res.status(403).json({ message: 'Accès refusé' });
+  }
+  
+  res.json({ message: 'topsecret' });
+})
+
+app.get('/restricted2', (req, res) => {
+  const token = req.headers.token;
+  
+  if (token !== '42') { 
+    return res.status(403).json({ message: 'Accès refusé' }); 
+  }
+  
+  res.send('<h1>Admin space</h1>');
+})
