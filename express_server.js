@@ -11,6 +11,9 @@ const loggerMiddleware = (req, res, next) => {
 app.use(loggerMiddleware);
 app.use(express.json());
 
+// Middleware pour servir des fichiers statiques
+app.use(express.static('templates'));
+
 app.get('/', (req, res) => {
   console.log(req.headers) 
   console.log(req.body)
