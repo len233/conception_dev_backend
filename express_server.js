@@ -1,4 +1,13 @@
 const express = require('express')
+const { v4: uuidv4 } = require('uuid')
+const { 
+    getRegisteredUsers, 
+    checkCredentials, 
+    addAuthenticatedUser, 
+    isTokenValid, 
+    getUserByToken 
+} = require('./inMemoryUserRepository')
+
 const app = express()
 const port = 3000
 
@@ -113,24 +122,22 @@ const headerMiddleware = (req, res, next) => {
 
 
 const firewall = (req, res, next) => {
-    const urls = ['/', '/hello', '/some-html', '/some-json', '/transaction'];
+    const urls = ['/', '/hello', '/some-html', '/some-json', '/transaction', '/authenticate'];
     
-    // Récupérer l'URL demandée
-    const requestedUrl = req.url.split('?')[0];// Enlever les query parameters 
+    const requestedUrl = req.url.split('?')[0];
     
     console.log("URL demandée:", requestedUrl);
     console.log("URLs non restreintes:", urls);
     
-    // Vérifier si l'URL est dans la liste des URLs non restreintes
     if (urls.includes(requestedUrl)) {
         console.log("URL non restreinte, accès autorisé");
-        next(); // Transmettre la requête au endpoint
+        next(); 
     } else {
         console.log("URL restreinte, vérification du token");
 
         const token = req.headers.authorization;
         
-        if (token !== '42') {
+        if (!token || !isTokenValid(token)) {
             console.log("Token invalide ou manquant");
             return res.status(403).json({ message: 'Accès refusé - Token requis' });
         }
@@ -152,23 +159,46 @@ app.get('/hello', (req, res) => {
   res.send('<h1>hello</h1>')
 })
 
-// avec vérification du token
 app.get('/restricted1', (req, res) => {
-  const token = req.headers.token;
-  
-  if (token !== '42') {
-    return res.status(403).json({ message: 'Accès refusé' });
-  }
-  
   res.json({ message: 'topsecret' });
 })
 
 app.get('/restricted2', (req, res) => {
-  const token = req.headers.token;
-  
-  if (token !== '42') { 
-    return res.status(403).json({ message: 'Accès refusé' }); 
-  }
-  
   res.send('<h1>Admin space</h1>');
 })
+
+
+app.post('/authenticate', (req, res) => {
+    console.log("Tentative d'authentification");
+    
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+        return res.status(400).json({ 
+            message: 'Email et mot de passe requis' 
+        });
+    }
+    
+    console.log(`Tentative de connexion pour: ${email}`);
+    
+    if (!checkCredentials(email, password)) {
+        console.log("Identifiants invalides");
+        return res.status(403).json({ 
+            message: 'Email ou mot de passe incorrect' 
+        });
+    }
+    
+    console.log("Authentification réussie");
+    
+    const token = uuidv4();
+    
+    addAuthenticatedUser(token, email);
+    
+    console.log(`Token généré pour ${email}: ${token}`);
+    
+    res.json({ 
+        message: 'Authentification réussie',
+        token: token,
+        email: email
+    });
+});
