@@ -2,10 +2,13 @@ const express = require('express')
 const { v4: uuidv4 } = require('uuid')
 const { 
     getRegisteredUsers, 
-    checkCredentials, 
+    checkCredentials,
+    checkCredentialsAsync, 
     addAuthenticatedUser, 
     isTokenValid, 
-    getUserByToken 
+    getUserByToken,
+    newUserRegistered,
+    getUserRole
 } = require('./inMemoryUserRepository')
 
 const app = express()
@@ -41,18 +44,64 @@ app.get('/get-user/:userId', (req, res) => {
   res.send(`<h1>${req.params.userId}</h1>`)
 })
 
-// Route publique (non restreinte)
 app.get('/hello', (req, res) => {
   res.send('<h1>hello</h1>')
 })
 
-// Routes restreintes (nécessitent un token)
+const requireRole = (requiredRole) => {
+    return (req, res, next) => {
+        const token = req.headers.authorization;
+        
+        if (!token || !isTokenValid(token)) {
+            return res.status(403).json({ message: 'Token invalide' });
+        }
+        
+        const user = getUserByToken(token);
+        const userRole = getUserRole(user.email);
+        
+        if (requiredRole === 'admin' && userRole !== 'admin') {
+            return res.status(403).json({ 
+                message: 'Accès refusé - Privilèges administrateur requis' 
+            });
+        }
+        
+        req.userEmail = user.email;
+        req.userRole = userRole;
+        next();
+    };
+};
+
 app.get('/restricted1', (req, res) => {
   res.json({ message: 'topsecret' });
 })
 
 app.get('/restricted2', (req, res) => {
   res.send('<h1>Admin space</h1>');
+})
+
+app.get('/admin-only', requireRole('admin'), (req, res) => {
+    res.json({ 
+        message: 'Zone administrateur',
+        user: req.userEmail,
+        role: req.userRole
+    });
+})
+
+app.get('/profile', (req, res) => {
+    const token = req.headers.authorization;
+    
+    if (!token || !isTokenValid(token)) {
+        return res.status(403).json({ message: 'Token requis' });
+    }
+    
+    const user = getUserByToken(token);
+    const userRole = getUserRole(user.email);
+    
+    res.json({ 
+        email: user.email,
+        role: userRole,
+        message: 'Profil utilisateur'
+    });
 })
 
 app.listen(port, () => {
@@ -122,7 +171,7 @@ const headerMiddleware = (req, res, next) => {
 
 
 const firewall = (req, res, next) => {
-    const urls = ['/', '/hello', '/some-html', '/some-json', '/transaction', '/authenticate'];
+    const urls = ['/', '/hello', '/some-html', '/some-json', '/transaction', '/authenticate', '/register'];
     
     const requestedUrl = req.url.split('?')[0];
     
@@ -168,7 +217,7 @@ app.get('/restricted2', (req, res) => {
 })
 
 
-app.post('/authenticate', (req, res) => {
+app.post('/authenticate', async (req, res) => {
     console.log("Tentative d'authentification");
     
     const { email, password } = req.body;
@@ -181,24 +230,88 @@ app.post('/authenticate', (req, res) => {
     
     console.log(`Tentative de connexion pour: ${email}`);
     
-    if (!checkCredentials(email, password)) {
-        console.log("Identifiants invalides");
-        return res.status(403).json({ 
-            message: 'Email ou mot de passe incorrect' 
+    try {
+        // Utiliser la fonction asynchrone pour supporter les mots de passe hashés
+        const isValid = await checkCredentialsAsync(email, password);
+        
+        if (!isValid) {
+            console.log("Identifiants invalides");
+            return res.status(403).json({ 
+                message: 'Email ou mot de passe incorrect' 
+            });
+        }
+        
+        console.log("Authentification réussie");
+        
+        const token = uuidv4();
+        const userRole = getUserRole(email);
+        
+        addAuthenticatedUser(token, email);
+        
+        console.log(`Token généré pour ${email}: ${token}`);
+        
+        res.json({ 
+            message: 'Authentification réussie',
+            token: token,
+            email: email,
+            role: userRole
+        });
+    } catch (error) {
+        console.error("Erreur lors de l'authentification:", error);
+        res.status(500).json({ 
+            message: 'Erreur interne du serveur' 
+        });
+    }
+});
+
+app.post('/register', async (req, res) => {
+    console.log("Tentative d'inscription");
+    
+    const { email, password, role } = req.body;
+    
+    // Validation des champs requis
+    if (!email || !password) {
+        return res.status(400).json({ 
+            message: 'Email et mot de passe requis' 
+        });
+    }
+
+    // Validation de l'email (basique)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ 
+            message: 'Format d\'email invalide' 
+        });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ 
+            message: 'Le mot de passe doit contenir au moins 6 caractères' 
         });
     }
     
-    console.log("Authentification réussie");
+    console.log(`Tentative d'inscription pour: ${email}`);
     
-    const token = uuidv4();
-    
-    addAuthenticatedUser(token, email);
-    
-    console.log(`Token généré pour ${email}: ${token}`);
-    
-    res.json({ 
-        message: 'Authentification réussie',
-        token: token,
-        email: email
-    });
+    try {
+        const result = await newUserRegistered(email, password, role || 'user');
+        
+        if (result.success) {
+            console.log("Inscription réussie");
+            res.status(201).json({ 
+                message: result.message,
+                email: email,
+                role: role || 'user'
+            });
+        } else {
+            console.log("Échec de l'inscription:", result.message);
+            res.status(409).json({ 
+                message: result.message 
+            });
+        }
+    } catch (error) {
+        console.error("Erreur lors de l'inscription:", error);
+        res.status(500).json({ 
+            message: 'Erreur interne du serveur' 
+        });
+    }
 });

@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/len233/conception_dev_backend#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "pg": "^8.16.3",
     "uuid": "^13.0.0"
   }

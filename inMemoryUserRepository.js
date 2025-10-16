@@ -1,20 +1,17 @@
-// 1. Variable globale contenant les utilisateurs inscrits
+const bcrypt = require('bcrypt');
+
 const registeredUsers = [
-    { email: 'user1@example.com', password: 'password123' },
-    { email: 'user2@example.com', password: 'motdepasse456' },
-    { email: 'admin@company.com', password: 'admin2023' }
+    { email: 'user1@example.com', password: 'password123', role: 'user' },
+    { email: 'user2@example.com', password: 'motdepasse456', role: 'user' },
+    { email: 'admin@company.com', password: 'admin2023', role: 'admin' }
 ];
 
-// 4. Objet global vide pour stocker les utilisateurs authentifiés
-// Clé: token, Valeur: objet contenant l'email
 const authenticatedUsers = {};
 
-// Fonction pour récupérer le tableau d'utilisateurs
 function getRegisteredUsers() {
     return registeredUsers;
 }
 
-// 2. Fonction pour vérifier les identifiants (checkCredentials)
 function checkCredentials(email, password) {
     const user = registeredUsers.find(user => 
         user.email === email && user.password === password
@@ -22,27 +19,73 @@ function checkCredentials(email, password) {
     return user ? true : false;
 }
 
-// Fonction pour ajouter un utilisateur authentifié
 function addAuthenticatedUser(token, userEmail) {
     authenticatedUsers[token] = { email: userEmail };
 }
 
-// Fonction pour vérifier si un token est valide
 function isTokenValid(token) {
     return authenticatedUsers.hasOwnProperty(token);
 }
 
-// Fonction pour obtenir l'utilisateur par token
 function getUserByToken(token) {
     return authenticatedUsers[token];
 }
 
-// Exporter les fonctions
+function userExists(email) {
+    return registeredUsers.some(user => user.email === email);
+}
+
+async function newUserRegistered(email, password, role = 'user') {
+    try {
+        if (userExists(email)) {
+            return { success: false, message: 'Un utilisateur avec cet email existe déjà' };
+        }
+
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        const newUser = {
+            email: email,
+            password: hashedPassword,
+            role: role
+        };
+
+        registeredUsers.push(newUser);
+        
+        return { success: true, message: 'Utilisateur créé avec succès' };
+    } catch (error) {
+        return { success: false, message: 'Erreur lors de la création de l\'utilisateur' };
+    }
+}
+
+async function checkCredentialsAsync(email, password) {
+    const user = registeredUsers.find(user => user.email === email);
+    
+    if (!user) {
+        return false;
+    }
+
+    if (user.password.startsWith('$2b$')) {
+        return await bcrypt.compare(password, user.password);
+    } else {
+        return user.password === password;
+    }
+}
+
+function getUserRole(email) {
+    const user = registeredUsers.find(user => user.email === email);
+    return user ? user.role : null;
+}
+
 module.exports = {
     getRegisteredUsers,
     checkCredentials,
+    checkCredentialsAsync,
     addAuthenticatedUser,
     isTokenValid,
     getUserByToken,
+    userExists,
+    newUserRegistered,
+    getUserRole,
     authenticatedUsers
 };
