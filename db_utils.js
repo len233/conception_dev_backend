@@ -1,9 +1,10 @@
 const { Client } = require('pg');
+require('dotenv').config();
 
 const DB_CONFIG = {
   host: 'localhost',
-  user: 'postgres',
-  password: 'cactus4705', 
+  user: process.env.dbuser || 'postgres',         
+  password: process.env.dbpwd || 'default_password', 
   database: 'mabase',
   port: 5433
 };
@@ -11,9 +12,9 @@ const DB_CONFIG = {
 function getConnection(username, password, database) {
   return new Client({
     host: 'localhost',
-    user: username,
-    password: password,
-    database: database,
+    user: username || DB_CONFIG.user,
+    password: password || DB_CONFIG.password,
+    database: database || DB_CONFIG.database,
     port: 5433
   });
 }
@@ -28,7 +29,7 @@ function getUsers(callback) {
       callback(null, res.rows);
     })
     .catch(err => {
-      console.error('Erreur récupération :', err.message);
+      console.error('erreur récupération :', err.message);
       callback(err, null);
     })
     .finally(() => client.end());
@@ -40,12 +41,12 @@ function insert_user(user, callback) {
   client.connect()
     .then(() => client.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [user.email]))
     .then(res => {
-      console.log('Utilisateur ajouté :', res.rows[0]);
+      console.log('utilisateur ajouté :', res.rows[0]);
       if (callback) callback(null, res.rows[0]);
       return res.rows[0];
     })
     .catch(err => {
-      console.error('Erreur insertion :', err.message);
+      console.error('erreur insertion :', err.message);
       if (callback) callback(err, null);
       throw err;
     })
@@ -53,7 +54,7 @@ function insert_user(user, callback) {
 }
 
 function runTests() {
-  console.log('Tests');
+  console.log('tests');
   
   getUsers((err, users) => {
     if (!err) console.table(users);
@@ -62,10 +63,10 @@ function runTests() {
   const testUser = { email: `test-${Date.now()}@exemple.com` };
   insert_user(testUser, (err, result) => {
     if (!err) {
-      console.log('Test insertion réussi');
+      console.log('test insertion réussi');
       setTimeout(() => getUsers((err, users) => {
         if (!err) {
-          console.log('Liste finale :');
+          console.log('liste finale :');
           console.table(users);
         }
       }), 500);

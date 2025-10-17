@@ -1,0 +1,17 @@
+# Dépendances Node.js
+node_modules/
+npm-debug.log*
+
+# Variables d'environnement (IMPORTANT : ne jamais committer les mots de passe!)
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+*.log
+server.log
+
+# Fichiers temporaires
+.DS_Store
+.vscode/settings.json
