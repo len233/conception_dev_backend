@@ -1,4 +1,0 @@
-(node:91412) ExperimentalWarning: CommonJS module /Users/mihu/B3_conception_dev_backend/conception_dev_backend/express_server.js is loading ES Module /Users/mihu/B3_conception_dev_backend/conception_dev_backend/node_modules/uuid/dist-node/index.js using require().
-Support for loading ES Module in require() is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)
-Example app listening on port 3000
