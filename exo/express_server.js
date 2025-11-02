@@ -9,7 +9,7 @@ const {
     getUserByToken,
     newUserRegistered,
     getUserRole
-} = require('./inMemoryUserRepository')
+} = require('./user')
 
 const app = express()
 const port = 3000

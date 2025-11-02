@@ -13,10 +13,10 @@ export class BattleService {
         let trainer2Wins = 0;
         let draws = 0;
 
-        log.push(`=== ARÈNE 1: 100 combats aléatoires ===`);
+        log.push(`=== ARÈNE 1 ===`);
         log.push(`${trainer1.name} vs ${trainer2.name}`);
 
-        for (let i = 1; i <= 100; i++) {
+        for (let i = 1; i <= 10; i++) {
             const result = trainer1.randomChallenge(trainer2);
             
             if (result.winner === trainer1) {
@@ -69,9 +69,9 @@ export class BattleService {
         const log: string[] = [];
         let combatsCount = 0;
 
-        log.push(`=== ARÈNE 2: Combats déterministes jusqu'à épuisement ===`);
+        log.push(`=== ARÈNE 2 ===`);
 
-        for (let i = 1; i <= 100; i++) {
+        for (let i = 1; i <= 10; i++) {
             combatsCount++;
             
             if (trainer1.alivePokemons.length === 0) {
@@ -106,6 +106,6 @@ export class BattleService {
         log.push(`${trainer2.name}: ${trainer2Alive} Pokémon vivants`);
         log.push(`GAGNANT ARÈNE 2: ${winner?.name || 'ÉGALITÉ'}`);
 
-        return { winner, combatsCount: 100, log };
+        return { winner, combatsCount: 10, log }; 
     }
 }

@@ -99,7 +99,7 @@ export class BattleController {
 
             res.json({
                 success: true,
-                battleType: 'Arène 1 - 100 Combats Aléatoires',
+                battleType: 'Arène 1',
                 winner: result.winner?.name || 'Égalité',
                 stats: result.stats,
                 finalStats: result.finalStats,
@@ -111,7 +111,6 @@ export class BattleController {
         }
     }
 
-    // Arène 2 (combats déterministes jusqu'à épuisement)
     static arena2(req: Request, res: Response) {
         try {
             const trainer1 = new Trainer('Elite Lorelei');
@@ -143,10 +142,9 @@ export class BattleController {
 
             res.json({
                 success: true,
-                battleType: 'Arène 2 - Combats Déterministes',
+                battleType: 'Arène 2',
                 winner: result.winner?.name || 'Égalité',
-                combatsCount: result.combatsCount,
-                log: result.log.slice(0, 30) // Limiter les logs
+                combatsCount: result.combatsCount
             });
 
         } catch (error: any) {
@@ -154,7 +152,6 @@ export class BattleController {
         }
     }
 
-    // Créer un combat personnalisé
     static createCustomBattle(req: Request, res: Response) {
         res.json({
             success: true,
