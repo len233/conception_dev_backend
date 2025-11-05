@@ -8,7 +8,33 @@ const swaggerSpec = swaggerJSDoc({
   definition: { 
     openapi: "3.0.3", 
     info: { title: "Demo", version: "1.0.0" },
-    servers: [{ url: "http://localhost:3000" }] 
+    servers: [{ url: "http://localhost:3000" }],
+    components: {
+      schemas: {
+        User: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              description: "Identifiant unique de l'utilisateur",
+              example: "123"
+            },
+            name: {
+              type: "string",
+              description: "Nom de l'utilisateur",
+              example: "Utilisateur 123"
+            },
+            email: {
+              type: "string",
+              format: "email",
+              description: "Adresse email de l'utilisateur",
+              example: "user123@example.com"
+            }
+          },
+          required: ["id", "name", "email"]
+        }
+      }
+    }
   },
   apis: ["./src/**/*.ts"],
 });
@@ -77,20 +103,14 @@ app.get("/hello", (req, res) => {
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                   example: "123"
- *                 name:
- *                   type: string
- *                   example: "Utilisateur 123"
+ *               $ref: '#/components/schemas/User'
  */
 app.get("/users/:id", (req, res) => {
   const { id } = req.params;
   res.json({ 
     id: id,
-    name: `Utilisateur ${id}`
+    name: `Utilisateur ${id}`,
+    email: `user${id}@example.com`
   });
 });
 
