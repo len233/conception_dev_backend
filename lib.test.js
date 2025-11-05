@@ -9,9 +9,9 @@ test('average calcule la moyenne', () => {
 });
 
 test('getMinimum retourne le minimum', () => {
-    const input1 = [11, -11, 10, 20, 3, -5];
+    const input2 = [11, -11, 10, 20, 3, -5];
     const expectedResult = -11;
-    const actualResult = getMinimum(input1);
+    const actualResult = getMinimum(input2);
     
     expect(actualResult).toBe(expectedResult);
 });
