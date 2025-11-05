@@ -21,6 +21,7 @@ app.get("/", (_req, res) => {
     routes: [
       "GET / - Cette page d'accueil",
       "GET /hello - Message de salutation",
+      "GET /users/:id - Récupérer un utilisateur par ID",
       "GET /docs - Documentation Swagger"
     ]
   });
@@ -55,6 +56,42 @@ app.get("/hello", (req, res) => {
   const name = req.query.name as string;
   const message = name ? `Bonjour, ${name} !` : "Bonjour, monde !";
   res.json({ message });
+});
+
+/**
+ * @openapi
+ * /users/{id}:
+ *   get:
+ *     summary: Récupérer un utilisateur par ID
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifiant de l'utilisateur
+ *         example: "123"
+ *     responses:
+ *       200:
+ *         description: Utilisateur trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "123"
+ *                 name:
+ *                   type: string
+ *                   example: "Utilisateur 123"
+ */
+app.get("/users/:id", (req, res) => {
+  const { id } = req.params;
+  res.json({ 
+    id: id,
+    name: `Utilisateur ${id}`
+  });
 });
 
 app.listen(3000, () => {
