@@ -4,6 +4,9 @@ import swaggerJSDoc from "swagger-jsdoc";
 
 const app = express();
 
+// Middleware pour parser le JSON
+app.use(express.json());
+
 const swaggerSpec = swaggerJSDoc({
   definition: { 
     openapi: "3.0.3", 
@@ -32,6 +35,23 @@ const swaggerSpec = swaggerJSDoc({
             }
           },
           required: ["id", "name", "email"]
+        },
+        CreateUser: {
+          type: "object",
+          properties: {
+            name: {
+              type: "string",
+              description: "Nom de l'utilisateur",
+              example: "Alice Dupont"
+            },
+            email: {
+              type: "string",
+              format: "email",
+              description: "Adresse email de l'utilisateur",
+              example: "alice.dupont@example.com"
+            }
+          },
+          required: ["name", "email"]
         }
       }
     }
@@ -48,6 +68,7 @@ app.get("/", (_req, res) => {
       "GET / - Cette page d'accueil",
       "GET /hello - Message de salutation",
       "GET /users/:id - Récupérer un utilisateur par ID",
+      "POST /users - Créer un nouvel utilisateur",
       "GET /docs - Documentation Swagger"
     ]
   });
@@ -112,6 +133,57 @@ app.get("/users/:id", (req, res) => {
     name: `Utilisateur ${id}`,
     email: `user${id}@example.com`
   });
+});
+
+/**
+ * @openapi
+ * /users:
+ *   post:
+ *     summary: Créer un nouvel utilisateur
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateUser'
+ *     responses:
+ *       201:
+ *         description: Utilisateur créé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Données invalides
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Les champs name et email sont requis"
+ */
+app.post("/users", (req, res) => {
+  const { name, email } = req.body;
+  
+  // Validation simple
+  if (!name || !email) {
+    return res.status(400).json({ 
+      error: "Les champs name et email sont requis" 
+    });
+  }
+  
+  // Générer un ID simple (dans un vrai projet, vous utiliseriez une base de données)
+  const id = Math.random().toString(36).substr(2, 9);
+  
+  const newUser = {
+    id,
+    name,
+    email
+  };
+  
+  res.status(201).json(newUser);
 });
 
 app.listen(3000, () => {
