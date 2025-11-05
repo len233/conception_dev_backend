@@ -31,6 +31,13 @@ app.get("/", (_req, res) => {
  * /hello:
  *   get:
  *     summary: Dire bonjour
+ *     parameters:
+ *       - name: name
+ *         in: query
+ *         schema:
+ *           type: string
+ *         description: Nom à personnaliser dans le message
+ *         example: Alice
  *     responses:
  *       200:
  *         description: OK
@@ -41,11 +48,13 @@ app.get("/", (_req, res) => {
  *               properties: 
  *                 message: 
  *                   type: string
- *                   example: "Bonjour, monde !"
+ *                   example: "Bonjour, Alice !"
  */
 
-app.get("/hello", (_req, res) => {
-  res.json({ message: "Bonjour, monde !" });
+app.get("/hello", (req, res) => {
+  const name = req.query.name as string;
+  const message = name ? `Bonjour, ${name} !` : "Bonjour, monde !";
+  res.json({ message });
 });
 
 app.listen(3000, () => {
