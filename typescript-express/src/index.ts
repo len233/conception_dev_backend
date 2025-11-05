@@ -26,6 +26,24 @@ app.get("/", (_req, res) => {
   });
 });
 
+/**
+ * @openapi
+ * /hello:
+ *   get:
+ *     summary: Dire bonjour
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties: 
+ *                 message: 
+ *                   type: string
+ *                   example: "Bonjour, monde !"
+ */
+
 app.get("/hello", (_req, res) => {
   res.json({ message: "Bonjour, monde !" });
 });
