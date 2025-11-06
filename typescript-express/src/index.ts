@@ -52,6 +52,27 @@ const swaggerSpec = swaggerJSDoc({
             }
           },
           required: ["name", "email"]
+        },
+        Error: {
+          type: "object",
+          properties: {
+            error: {
+              type: "string",
+              description: "Message d'erreur",
+              example: "Ressource non trouvée"
+            },
+            code: {
+              type: "integer",
+              description: "Code d'erreur HTTP",
+              example: 404
+            },
+            message: {
+              type: "string",
+              description: "Description détaillée de l'erreur",
+              example: "L'utilisateur avec l'ID spécifié n'existe pas"
+            }
+          },
+          required: ["error", "code"]
         }
       }
     }
@@ -97,6 +118,26 @@ app.get("/", (_req, res) => {
  *                 message: 
  *                   type: string
  *                   example: "Bonjour, Alice !"
+ *       400:
+ *         description: Requête invalide
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Paramètre invalide"
+ *               code: 400
+ *               message: "Le paramètre 'name' contient des caractères invalides"
+ *       500:
+ *         description: Erreur interne du serveur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Erreur interne"
+ *               code: 500
+ *               message: "Une erreur inattendue s'est produite"
  */
 
 app.get("/hello", (req, res) => {
@@ -125,6 +166,36 @@ app.get("/hello", (req, res) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: ID invalide
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "ID invalide"
+ *               code: 400
+ *               message: "L'ID doit être un nombre entier positif"
+ *       404:
+ *         description: Utilisateur non trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Utilisateur non trouvé"
+ *               code: 404
+ *               message: "Aucun utilisateur trouvé avec l'ID 123"
+ *       500:
+ *         description: Erreur interne du serveur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Erreur interne"
+ *               code: 500
+ *               message: "Erreur lors de la récupération de l'utilisateur"
  */
 app.get("/users/:id", (req, res) => {
   const { id } = req.params;
@@ -158,11 +229,31 @@ app.get("/users/:id", (req, res) => {
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Les champs name et email sont requis"
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Données invalides"
+ *               code: 400
+ *               message: "Les champs name et email sont requis"
+ *       409:
+ *         description: Conflit - Utilisateur déjà existant
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Utilisateur déjà existant"
+ *               code: 409
+ *               message: "Un utilisateur avec cette adresse email existe déjà"
+ *       500:
+ *         description: Erreur interne du serveur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Erreur interne"
+ *               code: 500
+ *               message: "Erreur lors de la création de l'utilisateur"
  */
 app.post("/users", (req, res) => {
   const { name, email } = req.body;
@@ -170,7 +261,9 @@ app.post("/users", (req, res) => {
   // Validation simple
   if (!name || !email) {
     return res.status(400).json({ 
-      error: "Les champs name et email sont requis" 
+      error: "Données invalides",
+      code: 400,
+      message: "Les champs name et email sont requis" 
     });
   }
   

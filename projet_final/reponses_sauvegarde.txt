@@ -1,0 +1,23 @@
+# Réponses aux questions de sauvegarde et récupération
+
+1. Quelle est la différence entre une sauvegarde complète et incrémentielle ?
+
+La différence entre une sauvegarde complète et incrémentielle c'est que une sauvegarde complète permet de sauvegarder toutes les données alors qu'une sauvegarde incrémentielle ne sauvegarde que les données modifiées depuis la dernière sauvegarde.
+
+---
+
+2. Quelle fréquence de sauvegarde recommanderiez-vous pour un entrepôt actif quotidiennement ?
+
+Pour un entrepôt actif quotidiennement, je recommande une sauvegarde complète chaque nuit et des sauvegardes incrémentales toutes les heures pendant les heures d'activité. Cela permet de minimiser la perte de données en cas de panne tout en évitant de surcharger le système pendant les heures de forte activité.
+
+---
+
+3. Citez un outil ou une commande permettant de sauvegarder une base PostgreSQL.
+
+La commande pg_dump permet de sauvegarder une base PostgreSQL.
+
+---
+
+4. Quelles bonnes pratiques permettent d'assurer une récupération rapide après sinistre (panne, suppression accidentelle, corruption) ?
+
+Les bonnes pratiques sont de tester régulièrement les sauvegardes, de conserver plusieurs copies sur différents supports, d'automatiser les sauvegardes, de documenter la procédure de restauration, et d'avoir un plan de reprise d'activité.
